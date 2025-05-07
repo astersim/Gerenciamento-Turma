@@ -3,19 +3,7 @@ import { Link } from 'react-router-dom';
 import { Turma } from '../../types';
 import { getTurmas, deleteTurma, reativarTurma } from '../../services/turmaService';
 import StatusBadge from '../../components/ui/StatusBadge';
-
-interface LayoutProps {
-  children: ReactNode;
-}
-
-const Layout: React.FC<LayoutProps> = ({ children }) => {
-  return (
-    <div>
-      {/* Layout content */}
-      {children}
-    </div>
-  );
-};
+import Layout from '../../components/Layout/Layout';
 
 const ListaTurmas: React.FC = () => {
   const [turmas, setTurmas] = useState<Turma[]>([]);

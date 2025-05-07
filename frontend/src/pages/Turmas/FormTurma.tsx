@@ -8,18 +8,7 @@ import {
 import { getDisciplinas } from '../../services/disciplinaService';
 import { getSalas } from '../../services/salaService';
 import { Disciplina, Sala } from '../../types';
-
-interface LayoutProps {
-  children: React.ReactNode;
-}
-
-const Layout: React.FC<LayoutProps> = ({ children }) => {
-  return (
-    <>
-      {children}
-    </>
-  );
-};
+import Layout from '../../components/Layout/Layout';
 
 const FormTurma: React.FC = () => {
   const { id } = useParams<{ id: string }>();

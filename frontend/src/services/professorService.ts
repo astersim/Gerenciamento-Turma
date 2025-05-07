@@ -9,7 +9,7 @@ export const getProfessores = async (ativo?: boolean) => {
 };
 
 export const getProfessor = async (id: number) => {
-  const response = await api.get<Professor>(`/professores/${id}`);
+  const response = await api.get<Professor>(`professores/${id}`);
   return response.data;
 };
 

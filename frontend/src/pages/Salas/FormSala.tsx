@@ -5,19 +5,7 @@ import {
   getSala,
   updateSala,
 } from '../../services/salaService';
-
-interface LayoutProps {
-  children: React.ReactNode;
-}
-
-const Layout: React.FC<LayoutProps> = ({ children }) => {
-  return (
-    <div className="layout">
-      {/* Layout content */}
-      {children}
-    </div>
-  );
-};
+import Layout from '../../components/Layout/Layout';
 
 const FormSala: React.FC = () => {
   const { id } = useParams<{ id: string }>();

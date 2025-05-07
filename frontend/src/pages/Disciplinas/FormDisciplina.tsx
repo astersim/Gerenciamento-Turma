@@ -5,18 +5,8 @@ import {
   getDisciplina,
   updateDisciplina,
 } from '../../services/disciplinaService';
+import Layout from '../../components/Layout/Layout';
 
-interface LayoutProps {
-  children: React.ReactNode;
-}
-
-const Layout: React.FC<LayoutProps> = ({ children }) => {
-  return (
-    <>
-      {children}
-    </>
-  );
-};
 
 const FormDisciplina: React.FC = () => {
   const { id } = useParams<{ id: string }>();

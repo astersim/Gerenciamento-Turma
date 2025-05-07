@@ -3,19 +3,7 @@ import { Link } from 'react-router-dom';
 import { Sala } from '../../types';
 import { getSalas, deleteSala, reativarSala } from '../../services/salaService';
 import StatusBadge from '../../components/ui/StatusBadge';
-
-interface LayoutProps {
-  children: ReactNode;
-}
-
-const Layout: React.FC<LayoutProps> = ({ children }) => {
-  return (
-    <div className="layout">
-      {/* Layout content */}
-      {children}
-    </div>
-  );
-};
+import Layout from '../../components/Layout/Layout';
 
 const ListaSalas: React.FC = () => {
   const [salas, setSalas] = useState<Sala[]>([]);
