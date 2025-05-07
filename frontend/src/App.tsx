@@ -4,7 +4,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 
 // Página Inicial
-import HomePage from './pages/Home/Homepage';
+import HomePage from './pages/Home/HomePage';
 
 // Páginas de Disciplinas
 import ListaDisciplinas from './pages/Disciplinas/ListaDisciplinas';

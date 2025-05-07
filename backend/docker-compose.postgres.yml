@@ -1,0 +1,30 @@
+services:
+    db:
+        image: postgres:17
+        restart: always
+        environment:
+            POSTGRES_DB: ${POSTGRES_DB}
+            POSTGRES_USER: ${POSTGRES_USER}
+            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+        ports:
+          - 5432:5432
+        networks:
+            - prisma-networks
+        healthcheck:
+            test: ["CMD-SHELL", "pg_isready - U prima -d postgres"]
+            interval: 5s
+            timeout: 2s
+            retries: 20
+        volumes:
+          - postgres_data:/var/lib/postgresql/data
+        command: postgres -c listen_addresses='*'
+        logging:
+          options:
+            max-size: "10m"
+            max-file: "3"
+networks:
+  prisma-networks:
+
+volumes:
+  postgres_data:
+

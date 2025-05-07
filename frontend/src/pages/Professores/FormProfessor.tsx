@@ -7,19 +7,7 @@ import {
 } from '../../services/professorService';
 import { getDisciplinas } from '../../services/disciplinaService';
 import { Disciplina } from '../../types';
-
-interface LayoutProps {
-  children: React.ReactNode;
-}
-
-const Layout: React.FC<LayoutProps> = ({ children }) => {
-  return (
-    <div>
-      {/* Layout content */}
-      {children}
-    </div>
-  );
-};
+import Layout from '../../components/Layout/Layout';
 
 const FormProfessor: React.FC = () => {
   const { id } = useParams<{ id: string }>();
