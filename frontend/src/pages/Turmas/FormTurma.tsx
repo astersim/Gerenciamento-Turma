@@ -1,13 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import {
-  createTurma,
-  getTurma,
-  updateTurma,
-} from '../../services/turmaService';
+import { createTurma, getTurma, updateTurma } from '../../services/turmaService';
 import { getDisciplinas } from '../../services/disciplinaService';
 import { getSalas } from '../../services/salaService';
-import { Disciplina, Sala } from '../../types';
+import { getProfessores } from '../../services/professorService';
+import { Disciplina, Sala, Professor } from '../../types';
 import Layout from '../../components/Layout/Layout';
 
 const FormTurma: React.FC = () => {
@@ -16,33 +13,42 @@ const FormTurma: React.FC = () => {
   const [codigo, setCodigo] = useState('');
   const [disciplinaId, setDisciplinaId] = useState<number | ''>('');
   const [salaId, setSalaId] = useState<number | ''>('');
+  const [professorId, setProfessorId] = useState<number | ''>('');
   const [disciplinas, setDisciplinas] = useState<Disciplina[]>([]);
   const [salas, setSalas] = useState<Sala[]>([]);
+  const [professores, setProfessores] = useState<Professor[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const isEdicao = !!id;
+
+  // Filtra professores que podem lecionar a disciplina selecionada
+  const professoresDisponiveis = professores.filter(professor =>
+    professor.disciplinas.some(pd => pd.disciplinaId === Number(disciplinaId))
+  );
 
   useEffect(() => {
     const carregarDados = async () => {
       try {
         setLoading(true);
         
-        // Carrega todas as disciplinas e salas ativas
-        const [disciplinasData, salasData] = await Promise.all([
+        // Carrega todas as disciplinas, salas e professores ativos
+        const [disciplinasData, salasData, professoresData] = await Promise.all([
           getDisciplinas(),
-          getSalas()
+          getSalas(),
+          getProfessores()
         ]);
         
         setDisciplinas(disciplinasData.filter(d => d.ativo));
         setSalas(salasData.filter(s => s.ativo));
+        setProfessores(professoresData.filter(p => p.ativo));
         
         if (isEdicao) {
-          // Se for edição, carrega os dados da turma
           const turma = await getTurma(parseInt(id));
           setCodigo(turma.codigo);
           setDisciplinaId(turma.disciplinaId);
           setSalaId(turma.salaId);
+          setProfessorId(turma.professorId ?? '');
         }
         
         setError(null);
@@ -81,7 +87,8 @@ const FormTurma: React.FC = () => {
       const turmaData = {
         codigo,
         disciplinaId: Number(disciplinaId),
-        salaId: Number(salaId)
+        salaId: Number(salaId),
+        professorId: professorId ? Number(professorId) : null 
       };
       
       if (isEdicao) {
@@ -92,7 +99,7 @@ const FormTurma: React.FC = () => {
 
       navigate('/turmas');
     } catch (err: any) {
-      if (err.response && err.response.data && err.response.data.error) {
+      if (err.response?.data?.error) {
         setError(err.response.data.error);
       } else {
         setError(`Erro ao ${isEdicao ? 'atualizar' : 'criar'} turma.`);
@@ -102,6 +109,11 @@ const FormTurma: React.FC = () => {
       setLoading(false);
     }
   };
+
+  // Reset professor when discipline changes
+  useEffect(() => {
+    setProfessorId('');
+  }, [disciplinaId]);
 
   return (
     <Layout>
@@ -166,12 +178,39 @@ const FormTurma: React.FC = () => {
           </select>
         </div>
 
-        <div className="d-flex gap-2">
-          <button
-            type="submit"
-            className="btn btn-primary"
-            disabled={loading}
+        <div className="mb-3">
+          <label htmlFor="professor" className="form-label">
+            Professor (Opcional)
+          </label>
+          <select
+            className="form-select"
+            id="professor"
+            value={professorId}
+            onChange={(e) => setProfessorId(e.target.value ? Number(e.target.value) : '')}
+            disabled={loading || !disciplinaId}
           >
+            <option value="">
+              {!disciplinaId 
+                ? 'Selecione uma disciplina primeiro' 
+                : professoresDisponiveis.length === 0 
+                  ? 'Nenhum professor disponível' 
+                  : 'Selecione um professor'}
+            </option>
+            {disciplinaId && professoresDisponiveis.map(professor => (
+              <option key={professor.id} value={professor.id}>
+                {professor.nome}
+              </option>
+            ))}
+          </select>
+          {disciplinaId && professoresDisponiveis.length === 0 && (
+            <small className="text-muted">
+              Não há professores cadastrados para esta disciplina. A turma pode ser criada sem um professor.
+            </small>
+          )}
+        </div>
+
+        <div className="d-flex gap-2">
+          <button type="submit" className="btn btn-primary" disabled={loading}>
             {loading ? 'Salvando...' : 'Salvar'}
           </button>
           <button

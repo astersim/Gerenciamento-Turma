@@ -1,15 +1,17 @@
-import React, { useEffect, useState, ReactNode } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Sala } from '../../types';
 import { getSalas, deleteSala, reativarSala } from '../../services/salaService';
 import StatusBadge from '../../components/ui/StatusBadge';
 import Layout from '../../components/Layout/Layout';
+import SearchBar from '../../components/ui/SearchBar';
 
 const ListaSalas: React.FC = () => {
   const [salas, setSalas] = useState<Sala[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [mostrarInativas, setMostrarInativas] = useState<boolean>(false);
+  const [searchTerm, setSearchTerm] = useState('');
 
   const carregarSalas = async () => {
     try {
@@ -67,11 +69,25 @@ const ListaSalas: React.FC = () => {
     ? salas
     : salas.filter((sala) => sala.ativo);
 
+  const salasPesquisadas = salasFiltradas
+    .filter((sala) =>
+      sala.local.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+    .sort((a, b) => a.local.localeCompare(b.local));
+
   return (
     <Layout>
       <h1>Salas</h1>
       {error && <div className="alert alert-danger">{error}</div>}
       
+      <div className="mb-3">
+        <SearchBar
+          value={searchTerm}
+          onChange={setSearchTerm}
+          placeholder="Pesquisar sala..."
+        />
+      </div>
+
       <div className="d-flex justify-content-between mb-3">
         <div className="form-check">
           <input
@@ -97,23 +113,21 @@ const ListaSalas: React.FC = () => {
           <table className="table table-striped">
             <thead>
               <tr>
-                <th>ID</th>
                 <th>Local</th>
                 <th>Status</th>
                 <th>Ações</th>
               </tr>
             </thead>
             <tbody>
-              {salasFiltradas.length === 0 ? (
+              {salasPesquisadas.length === 0 ? (
                 <tr>
-                  <td colSpan={4} className="text-center">
+                  <td colSpan={3} className="text-center">
                     Nenhuma sala encontrada.
                   </td>
                 </tr>
               ) : (
-                salasFiltradas.map((sala) => (
+                salasPesquisadas.map((sala) => (
                   <tr key={sala.id}>
-                    <td>{sala.id}</td>
                     <td>{sala.local}</td>
                     <td>
                       <StatusBadge active={sala.ativo} />

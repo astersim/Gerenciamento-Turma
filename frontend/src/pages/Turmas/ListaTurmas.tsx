@@ -1,15 +1,17 @@
-import React, { useEffect, useState, ReactNode } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Turma } from '../../types';
 import { getTurmas, deleteTurma, reativarTurma } from '../../services/turmaService';
 import StatusBadge from '../../components/ui/StatusBadge';
 import Layout from '../../components/Layout/Layout';
+import SearchBar from '../../components/ui/SearchBar';
 
 const ListaTurmas: React.FC = () => {
   const [turmas, setTurmas] = useState<Turma[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [mostrarInativas, setMostrarInativas] = useState<boolean>(false);
+  const [searchTerm, setSearchTerm] = useState('');
 
   const carregarTurmas = async () => {
     try {
@@ -67,11 +69,27 @@ const ListaTurmas: React.FC = () => {
     ? turmas
     : turmas.filter((turma) => turma.ativo);
 
+  const turmasPesquisadas = turmasFiltradas
+    .filter((turma) =>
+      turma.codigo.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      turma.disciplina?.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      turma.sala?.local.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+    .sort((a, b) => a.codigo.localeCompare(b.codigo));
+
   return (
     <Layout>
       <h1>Turmas</h1>
       {error && <div className="alert alert-danger">{error}</div>}
       
+      <div className="mb-3">
+        <SearchBar
+          value={searchTerm}
+          onChange={setSearchTerm}
+          placeholder="Pesquisar por código, disciplina ou sala..."
+        />
+      </div>
+
       <div className="d-flex justify-content-between mb-3">
         <div className="form-check">
           <input
@@ -97,27 +115,27 @@ const ListaTurmas: React.FC = () => {
           <table className="table table-striped">
             <thead>
               <tr>
-                <th>ID</th>
                 <th>Código</th>
                 <th>Disciplina</th>
+                <th>Professor</th>
                 <th>Sala</th>
                 <th>Status</th>
                 <th>Ações</th>
               </tr>
             </thead>
             <tbody>
-              {turmasFiltradas.length === 0 ? (
+              {turmasPesquisadas.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="text-center">
                     Nenhuma turma encontrada.
                   </td>
                 </tr>
               ) : (
-                turmasFiltradas.map((turma) => (
+                turmasPesquisadas.map((turma) => (
                   <tr key={turma.id}>
-                    <td>{turma.id}</td>
                     <td>{turma.codigo}</td>
                     <td>{turma.disciplina?.nome}</td>
+                    <td>{turma.professor ? turma.professor.nome : "Não atribuído"}</td>
                     <td>{turma.sala?.local}</td>
                     <td>
                       <StatusBadge active={turma.ativo} />

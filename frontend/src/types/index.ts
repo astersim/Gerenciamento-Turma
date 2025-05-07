@@ -23,9 +23,11 @@ export interface Turma {
   codigo: string;
   disciplinaId: number;
   salaId: number;
+  professorId?: number | null; // Make professorId optional
   ativo: boolean;
   disciplina?: Disciplina;
   sala?: Sala;
+  professor?: Professor;
 }
 
 export interface ProfessorDisciplina {

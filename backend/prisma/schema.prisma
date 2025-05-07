@@ -19,6 +19,7 @@ model Professor {
   nome        String
   ativo       Boolean               @default(true)
   disciplinas ProfessorDisciplina[]
+  turmas      Turma[]
 }
 
 model Disciplina {
@@ -43,6 +44,8 @@ model Turma {
   disciplinaId Int
   sala         Sala       @relation(fields: [salaId], references: [id])
   salaId       Int
+  professor    Professor? @relation(fields: [professorId], references: [id]) // Make relation optional
+  professorId  Int?       
   ativo        Boolean    @default(true)
 }
 
@@ -55,4 +58,5 @@ model ProfessorDisciplina {
 
   @@unique([professorId, disciplinaId])
 }
+
 

@@ -1,12 +1,44 @@
 import { Request, Response } from 'express';
-import prisma from '../database/prismaClient';
+import { PrismaClient } from '@prisma/client';
 
-export const getDisciplinas = async (_req: Request, res: Response) => {
+const prisma = new PrismaClient();
+
+export const getDisciplinas = async (req: Request, res: Response) => {
   try {
-    const disciplinas = await prisma.disciplina.findMany();
-    res.json(disciplinas);
+    const disciplinas = await prisma.disciplina.findMany({
+      orderBy: {
+        nome: 'asc'
+      }
+    });
+
+    return res.json(disciplinas);
   } catch (error) {
-    res.status(500).json({ error: "Erro ao buscar disciplinas" });
+    console.error('Error fetching disciplinas:', error);
+    return res.status(500).json({
+      error: 'Erro interno ao buscar disciplinas',
+      details: process.env.NODE_ENV === 'development' ? error : undefined
+    });
+  }
+};
+
+export const getDisciplinaById = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const disciplina = await prisma.disciplina.findUnique({
+      where: { id: Number(id) }
+    });
+
+    if (!disciplina) {
+      return res.status(404).json({ error: 'Disciplina não encontrada' });
+    }
+
+    return res.json(disciplina);
+  } catch (error) {
+    console.error('Error fetching disciplina:', error);
+    return res.status(500).json({
+      error: 'Erro interno ao buscar disciplina',
+      details: process.env.NODE_ENV === 'development' ? error : undefined
+    });
   }
 };
 

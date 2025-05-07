@@ -143,6 +143,7 @@ exports.Prisma.TurmaScalarFieldEnum = {
   codigo: 'codigo',
   disciplinaId: 'disciplinaId',
   salaId: 'salaId',
+  professorId: 'professorId',
   ativo: 'ativo'
 };
 
@@ -160,6 +161,11 @@ exports.Prisma.SortOrder = {
 exports.Prisma.QueryMode = {
   default: 'default',
   insensitive: 'insensitive'
+};
+
+exports.Prisma.NullsOrder = {
+  first: 'first',
+  last: 'last'
 };
 
 
