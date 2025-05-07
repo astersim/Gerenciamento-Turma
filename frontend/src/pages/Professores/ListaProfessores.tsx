@@ -4,13 +4,14 @@ import { Professor } from '../../types';
 import { getProfessores, deleteProfessor, reativarProfessor } from '../../services/professorService';
 import StatusBadge from '../../components/ui/StatusBadge';
 import Layout from '../../components/Layout/Layout';
-
+import SearchBar from '../../components/ui/SearchBar';
 
 const ListaProfessores: React.FC = () => {
   const [professores, setProfessores] = useState<Professor[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [mostrarInativos, setMostrarInativos] = useState<boolean>(false);
+  const [searchTerm, setSearchTerm] = useState('');
 
   const carregarProfessores = async () => {
     try {
@@ -64,11 +65,28 @@ const ListaProfessores: React.FC = () => {
     ? professores
     : professores.filter((professor) => professor.ativo);
 
+  const professoresPesquisados = professoresFiltrados
+    .filter((professor) =>
+      professor.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      professor.disciplinas.some(pd => 
+        pd.disciplina?.nome.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    )
+    .sort((a, b) => a.nome.localeCompare(b.nome));
+
   return (
     <Layout>
       <h1>Professores</h1>
       {error && <div className="alert alert-danger">{error}</div>}
       
+      <div className="mb-3">
+        <SearchBar
+          value={searchTerm}
+          onChange={setSearchTerm}
+          placeholder="Pesquisar por nome ou disciplina..."
+        />
+      </div>
+
       <div className="d-flex justify-content-between mb-3">
         <div className="form-check">
           <input
@@ -94,7 +112,6 @@ const ListaProfessores: React.FC = () => {
           <table className="table table-striped">
             <thead>
               <tr>
-                <th>ID</th>
                 <th>Nome</th>
                 <th>Disciplinas</th>
                 <th>Status</th>
@@ -102,16 +119,15 @@ const ListaProfessores: React.FC = () => {
               </tr>
             </thead>
             <tbody>
-              {professoresFiltrados.length === 0 ? (
+              {professoresPesquisados.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="text-center">
+                  <td colSpan={4} className="text-center">
                     Nenhum professor encontrado.
                   </td>
                 </tr>
               ) : (
-                professoresFiltrados.map((professor) => (
+                professoresPesquisados.map((professor) => (
                   <tr key={professor.id}>
-                    <td>{professor.id}</td>
                     <td>{professor.nome}</td>
                     <td>
                       {professor.disciplinas.length > 0

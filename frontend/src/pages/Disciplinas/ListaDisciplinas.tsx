@@ -4,12 +4,14 @@ import { Disciplina } from '../../types';
 import { getDisciplinas, deleteDisciplina, reativarDisciplina } from '../../services/disciplinaService';
 import StatusBadge from '../../components/ui/StatusBadge';
 import Layout from '../../components/Layout/Layout';
+import SearchBar from '../../components/ui/SearchBar';
 
 const ListaDisciplinas: React.FC = () => {
   const [disciplinas, setDisciplinas] = useState<Disciplina[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [mostrarInativas, setMostrarInativas] = useState<boolean>(false);
+  const [searchTerm, setSearchTerm] = useState('');
 
   const carregarDisciplinas = async () => {
     try {
@@ -65,11 +67,25 @@ const ListaDisciplinas: React.FC = () => {
     ? disciplinas
     : disciplinas.filter((disciplina) => disciplina.ativo);
 
+  const disciplinasPesquisadas = disciplinasFiltradas
+    .filter((disciplina) =>
+      disciplina.nome.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+    .sort((a, b) => a.nome.localeCompare(b.nome));
+
   return (
     <Layout>
       <h1>Disciplinas</h1>
       {error && <div className="alert alert-danger">{error}</div>}
       
+      <div className="mb-3">
+        <SearchBar
+          value={searchTerm}
+          onChange={setSearchTerm}
+          placeholder="Pesquisar disciplina..."
+        />
+      </div>
+
       <div className="d-flex justify-content-between mb-3">
         <div className="form-check">
           <input
@@ -95,23 +111,21 @@ const ListaDisciplinas: React.FC = () => {
           <table className="table table-striped">
             <thead>
               <tr>
-                <th>ID</th>
                 <th>Nome</th>
                 <th>Status</th>
                 <th>Ações</th>
               </tr>
             </thead>
             <tbody>
-              {disciplinasFiltradas.length === 0 ? (
+              {disciplinasPesquisadas.length === 0 ? (
                 <tr>
-                  <td colSpan={4} className="text-center">
+                  <td colSpan={3} className="text-center">
                     Nenhuma disciplina encontrada.
                   </td>
                 </tr>
               ) : (
-                disciplinasFiltradas.map((disciplina) => (
+                disciplinasPesquisadas.map((disciplina) => (
                   <tr key={disciplina.id}>
-                    <td>{disciplina.id}</td>
                     <td>{disciplina.nome}</td>
                     <td>
                       <StatusBadge active={disciplina.ativo} />
