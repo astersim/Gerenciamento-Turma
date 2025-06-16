@@ -6,17 +6,23 @@ import {
   updateTurma,
 } from '../../services/turmaService';
 import { getDisciplinas } from '../../services/disciplinaService';
+import { getProfessores } from '../../services/professorService';
 import { getSalas } from '../../services/salaService';
-import { Disciplina, Sala } from '../../types';
+import { Disciplina, Professor, Sala } from '../../types';
 import Layout from '../../components/Layout/Layout';
 
 const FormTurma: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [codigo, setCodigo] = useState('');
+  const [nome, setNome] = useState('');
+  const [diaSemana, setDiaSemana] = useState('');
+  const [horarioInicio, setHorarioInicio] = useState('');  const [horarioTermino, setHorarioTermino] = useState('');
   const [disciplinaId, setDisciplinaId] = useState<number | ''>('');
+  const [professorId, setProfessorId] = useState<number | ''>('');
   const [salaId, setSalaId] = useState<number | ''>('');
   const [disciplinas, setDisciplinas] = useState<Disciplina[]>([]);
+  const [professores, setProfessores] = useState<Professor[]>([]);
   const [salas, setSalas] = useState<Sala[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -27,21 +33,26 @@ const FormTurma: React.FC = () => {
     const carregarDados = async () => {
       try {
         setLoading(true);
-        
-        // Carrega todas as disciplinas e salas ativas
-        const [disciplinasData, salasData] = await Promise.all([
+          // Carrega todas as disciplinas, professores e salas ativas
+        const [disciplinasData, professoresData, salasData] = await Promise.all([
           getDisciplinas(),
+          getProfessores(),
           getSalas()
         ]);
         
         setDisciplinas(disciplinasData.filter(d => d.ativo));
+        setProfessores(professoresData.filter(p => p.ativo));
         setSalas(salasData.filter(s => s.ativo));
         
         if (isEdicao) {
           // Se for edição, carrega os dados da turma
           const turma = await getTurma(parseInt(id));
           setCodigo(turma.codigo);
+          setNome(turma.nome);
+          setDiaSemana(turma.diaSemana);
+          setHorarioInicio(turma.horarioInicio);          setHorarioTermino(turma.horarioTermino);
           setDisciplinaId(turma.disciplinaId);
+          setProfessorId(turma.professorId);
           setSalaId(turma.salaId);
         }
         
@@ -64,12 +75,29 @@ const FormTurma: React.FC = () => {
       setError('Código é obrigatório.');
       return;
     }
-    
-    if (disciplinaId === '') {
+    if (!nome.trim()) {
+      setError('Nome é obrigatório.');
+      return;
+    }
+    if (!diaSemana.trim()) {
+      setError('Dia da semana é obrigatório.');
+      return;
+    }
+    if (!horarioInicio.trim()) {
+      setError('Horário de início é obrigatório.');
+      return;
+    }
+    if (!horarioTermino.trim()) {
+      setError('Horário de término é obrigatório.');
+      return;
+    }    if (disciplinaId === '') {
       setError('Disciplina é obrigatória.');
       return;
     }
-    
+    if (professorId === '') {
+      setError('Professor é obrigatório.');
+      return;
+    }
     if (salaId === '') {
       setError('Sala é obrigatória.');
       return;
@@ -77,10 +105,14 @@ const FormTurma: React.FC = () => {
 
     try {
       setLoading(true);
-      
-      const turmaData = {
+        const turmaData = {
         codigo,
+        nome,
+        diaSemana,
+        horarioInicio,
+        horarioTermino,
         disciplinaId: Number(disciplinaId),
+        professorId: Number(professorId),
         salaId: Number(salaId)
       };
       
@@ -123,7 +155,62 @@ const FormTurma: React.FC = () => {
             required
           />
         </div>
-        
+        <div className="mb-3">
+          <label htmlFor="nome" className="form-label">
+            Nome
+          </label>
+          <input
+            type="text"
+            className="form-control"
+            id="nome"
+            value={nome}
+            onChange={(e) => setNome(e.target.value)}
+            disabled={loading}
+            required
+          />
+        </div>
+        <div className="mb-3">
+          <label htmlFor="diaSemana" className="form-label">
+            Dia da Semana
+          </label>
+          <input
+            type="text"
+            className="form-control"
+            id="diaSemana"
+            value={diaSemana}
+            onChange={(e) => setDiaSemana(e.target.value)}
+            disabled={loading}
+            required
+          />
+        </div>
+        <div className="mb-3">
+          <label htmlFor="horarioInicio" className="form-label">
+            Horário de Início
+          </label>
+          <input
+            type="time"
+            className="form-control"
+            id="horarioInicio"
+            value={horarioInicio}
+            onChange={(e) => setHorarioInicio(e.target.value)}
+            disabled={loading}
+            required
+          />
+        </div>
+        <div className="mb-3">
+          <label htmlFor="horarioTermino" className="form-label">
+            Horário de Término
+          </label>
+          <input
+            type="time"
+            className="form-control"
+            id="horarioTermino"
+            value={horarioTermino}
+            onChange={(e) => setHorarioTermino(e.target.value)}
+            disabled={loading}
+            required
+          />
+        </div>
         <div className="mb-3">
           <label htmlFor="disciplina" className="form-label">
             Disciplina
@@ -140,6 +227,26 @@ const FormTurma: React.FC = () => {
             {disciplinas.map(disciplina => (
               <option key={disciplina.id} value={disciplina.id}>
                 {disciplina.nome}
+              </option>
+            ))}
+          </select>        </div>
+        
+        <div className="mb-3">
+          <label htmlFor="professor" className="form-label">
+            Professor
+          </label>
+          <select
+            className="form-select"
+            id="professor"
+            value={professorId}
+            onChange={(e) => setProfessorId(e.target.value ? Number(e.target.value) : '')}
+            disabled={loading}
+            required
+          >
+            <option value="">Selecione um professor</option>
+            {professores.map(professor => (
+              <option key={professor.id} value={professor.id}>
+                {professor.nome}
               </option>
             ))}
           </select>

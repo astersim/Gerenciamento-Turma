@@ -1,10 +1,15 @@
 import api from './api';
 import { Sala } from '../types';
 
-export const getSalas = async (ativo?: boolean) => {
-  const response = await api.get<Sala[]>(
-    `/salas${ativo !== undefined ? `?ativo=${ativo}` : ''}`
-  );
+export const getSalas = async (params?: {
+  search?: string;
+  orderBy1?: string;
+  orderDir1?: 'asc' | 'desc';
+  orderBy2?: string;
+  orderDir2?: 'asc' | 'desc';
+  ativo?: boolean;
+}) => {
+  const response = await api.get<Sala[]>('/salas', { params });
   return response.data;
 };
 

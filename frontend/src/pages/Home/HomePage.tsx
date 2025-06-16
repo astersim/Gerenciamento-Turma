@@ -22,8 +22,7 @@ const HomePage: React.FC = () => {
           <h1 className="display-4">Sistema de Gerenciamento de Turmas</h1>
           <p className="lead">Selecione uma opção para começar</p>
         </div>
-        
-        <div className="row row-cols-1 row-cols-md-2 g-4 justify-content-center">
+          <div className="row row-cols-1 row-cols-md-2 g-4 justify-content-center">
           <div className="col">
             <div className="card h-100">
               <div className="card-body text-center">
@@ -47,6 +46,20 @@ const HomePage: React.FC = () => {
                 </p>
                 <Link to="/professores" className="btn btn-primary">
                   Acessar Professores
+                </Link>
+              </div>
+            </div>
+          </div>
+          
+          <div className="col">
+            <div className="card h-100">
+              <div className="card-body text-center">
+                <h2 className="card-title">Alunos</h2>
+                <p className="card-text">
+                  Gerencie o cadastro de alunos e suas matrículas.
+                </p>
+                <Link to="/alunos" className="btn btn-primary">
+                  Acessar Alunos
                 </Link>
               </div>
             </div>

@@ -37,6 +37,15 @@ const Navbar: React.FC = () => {
               <Link className="nav-link" to="/turmas">
                 Turmas
               </Link>
+            </li>            <li className="nav-item">
+              <Link className="nav-link" to="/alunos">
+                Alunos
+              </Link>
+            </li>
+            <li className="nav-item">
+              <Link className="nav-link" to="/matriculas">
+                Matrículas
+              </Link>
             </li>
           </ul>
         </div>

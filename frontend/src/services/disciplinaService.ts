@@ -1,8 +1,15 @@
 import api from './api';
 import { Disciplina } from '../types';
 
-export const getDisciplinas = async () => {
-  const response = await api.get<Disciplina[]>('/disciplinas');
+export const getDisciplinas = async (params?: {
+  search?: string;
+  orderBy1?: string;
+  orderDir1?: 'asc' | 'desc';
+  orderBy2?: string;
+  orderDir2?: 'asc' | 'desc';
+  ativo?: boolean;
+}) => {
+  const response = await api.get<Disciplina[]>('/disciplinas', { params });
   return response.data;
 };
 

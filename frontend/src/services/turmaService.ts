@@ -1,10 +1,15 @@
 import api from './api';
 import { Turma } from '../types';
 
-export const getTurmas = async (ativo?: boolean) => {
-  const response = await api.get<Turma[]>(
-    `/turmas${ativo !== undefined ? `?ativo=${ativo}` : ''}`
-  );
+export const getTurmas = async (params?: {
+  search?: string;
+  orderBy1?: string;
+  orderDir1?: 'asc' | 'desc';
+  orderBy2?: string;
+  orderDir2?: 'asc' | 'desc';
+  ativo?: boolean;
+}) => {
+  const response = await api.get<Turma[]>('/turmas', { params });
   return response.data;
 };
 

@@ -1,7 +1,7 @@
-import React, { useEffect, useState, ReactNode } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Turma } from '../../types';
-import { getTurmas, deleteTurma, reativarTurma } from '../../services/turmaService';
+import { getTurmas, deleteTurma } from '../../services/turmaService';
 import StatusBadge from '../../components/ui/StatusBadge';
 import Layout from '../../components/Layout/Layout';
 
@@ -9,12 +9,24 @@ const ListaTurmas: React.FC = () => {
   const [turmas, setTurmas] = useState<Turma[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [mostrarInativas, setMostrarInativas] = useState<boolean>(false);
+  const [mostrarInativas, setMostrarInativas] = useState<boolean>(false);  const [search, setSearch] = useState<string>('');
+  const [orderBy1, setOrderBy1] = useState<string>('codigo');
+  const [orderDir1, setOrderDir1] = useState<'asc' | 'desc'>('asc');
+  const [orderBy2, setOrderBy2] = useState<string>('');
+  const [orderDir2, setOrderDir2] = useState<'asc' | 'desc'>('asc');
+  const [loadingAction, setLoadingAction] = useState<number | null>(null);
 
   const carregarTurmas = async () => {
     try {
       setLoading(true);
-      const data = await getTurmas();
+      const data = await getTurmas({
+        search: search || undefined,
+        orderBy1: orderBy1 || undefined,
+        orderDir1,
+        orderBy2: orderBy2 || undefined,
+        orderDir2,
+        ativo: mostrarInativas ? undefined : true,
+      });
       setTurmas(data);
       setError(null);
     } catch (err) {
@@ -27,39 +39,26 @@ const ListaTurmas: React.FC = () => {
 
   useEffect(() => {
     carregarTurmas();
-  }, []);
-
-  const handleDelete = async (id: number) => {
+    // eslint-disable-next-line
+  }, [search, orderBy1, orderDir1, orderBy2, orderDir2, mostrarInativas]);  const handleDelete = async (id: number) => {
     if (window.confirm('Tem certeza que deseja desativar esta turma?')) {
       try {
+        setLoadingAction(id);
+        console.log('Desativando turma:', id);
         await deleteTurma(id);
+        console.log('Turma desativada com sucesso');
         setTurmas(
           turmas.map((turma) =>
             turma.id === id ? { ...turma, ativo: false } : turma
           )
         );
+        alert('Turma desativada com sucesso!');
       } catch (err) {
+        console.error('Erro ao desativar turma:', err);
         setError('Erro ao desativar turma.');
-        console.error(err);
+      } finally {
+        setLoadingAction(null);
       }
-    }
-  };
-
-  const handleReativar = async (id: number) => {
-    try {
-      await reativarTurma(id);
-      setTurmas(
-        turmas.map((turma) =>
-          turma.id === id ? { ...turma, ativo: true } : turma
-        )
-      );
-    } catch (err: any) {
-      if (err.response && err.response.data && err.response.data.error) {
-        setError(err.response.data.error);
-      } else {
-        setError('Erro ao reativar turma.');
-      }
-      console.error(err);
     }
   };
 
@@ -71,7 +70,46 @@ const ListaTurmas: React.FC = () => {
     <Layout>
       <h1>Turmas</h1>
       {error && <div className="alert alert-danger">{error}</div>}
-      
+      <form className="row g-2 mb-3" onSubmit={e => { e.preventDefault(); carregarTurmas(); }}>
+        <div className="col-md-4">
+          <input
+            type="text"
+            className="form-control"
+            placeholder="Buscar por nome, código, disciplina ou sala"
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+          />
+        </div>        <div className="col-md-2">
+          <select className="form-select" value={orderBy1} onChange={e => setOrderBy1(e.target.value)}>
+            <option value="codigo">Código</option>
+            <option value="nome">Nome</option>
+            <option value="diaSemana">Dia da Semana</option>
+          </select>
+        </div>
+        <div className="col-md-1">
+          <select className="form-select" value={orderDir1} onChange={e => setOrderDir1(e.target.value as 'asc' | 'desc')}>
+            <option value="asc">↑</option>
+            <option value="desc">↓</option>
+          </select>
+        </div>
+        <div className="col-md-2">          <select className="form-select" value={orderBy2} onChange={e => setOrderBy2(e.target.value)}>
+            <option value="">(2º ordenação)</option>
+            <option value="codigo">Código</option>
+            <option value="nome">Nome</option>
+            <option value="diaSemana">Dia da Semana</option>
+          </select>
+        </div>
+        <div className="col-md-1">
+          <select className="form-select" value={orderDir2} onChange={e => setOrderDir2(e.target.value as 'asc' | 'desc')}>
+            <option value="asc">↑</option>
+            <option value="desc">↓</option>
+          </select>
+        </div>
+        <div className="col-md-2">
+          <button type="submit" className="btn btn-outline-primary w-100">Buscar</button>
+        </div>
+      </form>
+
       <div className="d-flex justify-content-between mb-3">
         <div className="form-check">
           <input
@@ -81,32 +119,35 @@ const ListaTurmas: React.FC = () => {
             checked={mostrarInativas}
             onChange={(e) => setMostrarInativas(e.target.checked)}
           />
-          <label className="form-check-label" htmlFor="mostrarInativas">
+          <label className="form-check-label" htmlFor="mostrarInativos">
             Mostrar turmas inativas
           </label>
         </div>
-        <Link to="/turmas/novo" className="btn btn-primary">
-          Nova Turma
-        </Link>
+        <div>
+          <Link to="/turmas/novo" className="btn btn-primary me-2">
+            Nova Turma
+          </Link>
+          <Link to="/turmas/reativar" className="btn btn-outline-success">
+            Reativar Turmas
+          </Link>
+        </div>
       </div>
 
       {loading ? (
         <p>Carregando...</p>
       ) : (
         <div className="table-responsive">
-          <table className="table table-striped">
-            <thead>
+          <table className="table table-striped">            <thead>
               <tr>
-                <th>ID</th>
                 <th>Código</th>
                 <th>Disciplina</th>
+                <th>Professor</th>
                 <th>Sala</th>
                 <th>Status</th>
                 <th>Ações</th>
               </tr>
             </thead>
-            <tbody>
-              {turmasFiltradas.length === 0 ? (
+            <tbody>              {turmasFiltradas.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="text-center">
                     Nenhuma turma encontrada.
@@ -115,35 +156,33 @@ const ListaTurmas: React.FC = () => {
               ) : (
                 turmasFiltradas.map((turma) => (
                   <tr key={turma.id}>
-                    <td>{turma.id}</td>
                     <td>{turma.codigo}</td>
                     <td>{turma.disciplina?.nome}</td>
+                    <td>{turma.professor?.nome}</td>
                     <td>{turma.sala?.local}</td>
                     <td>
                       <StatusBadge active={turma.ativo} />
-                    </td>
-                    <td>
+                    </td>                    <td>
                       <Link
                         to={`/turmas/editar/${turma.id}`}
                         className="btn btn-sm btn-primary me-2"
                       >
                         Editar
                       </Link>
-                      {turma.ativo ? (
-                        <button
+                      <Link
+                        to={`/turmas/${turma.id}/alunos`}
+                        className="btn btn-sm btn-info me-2"
+                      >
+                        Alunos
+                      </Link>
+                      {turma.ativo ? (                        <button
                           onClick={() => handleDelete(turma.id)}
                           className="btn btn-sm btn-danger"
+                          disabled={loadingAction === turma.id}
                         >
-                          Desativar
+                          {loadingAction === turma.id ? 'Desativando...' : 'Desativar'}
                         </button>
-                      ) : (
-                        <button
-                          onClick={() => handleReativar(turma.id)}
-                          className="btn btn-sm btn-success"
-                        >
-                          Reativar
-                        </button>
-                      )}
+                      ) : null}
                     </td>
                   </tr>
                 ))

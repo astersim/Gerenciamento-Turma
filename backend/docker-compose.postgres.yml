@@ -1,6 +1,7 @@
 services:
-    db:
-        image: postgres:17
+    database:
+        image: postgres
+        container_name: gerenciamento_de_turmas_postgres
         restart: always
         environment:
             POSTGRES_DB: ${POSTGRES_DB}

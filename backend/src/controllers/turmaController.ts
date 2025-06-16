@@ -3,16 +3,21 @@ import prisma from '../database/prismaClient';
 
 export const getTurmas = async (req: Request, res: Response) => {
   try {
-    const { ativo } = req.query;
-    
-    const where = ativo !== undefined ? { ativo: ativo === 'true' } : {};
-    
-    const turmas = await prisma.turma.findMany({
+    const { ativo, search, orderBy1, orderBy2, orderDir1 = 'asc', orderDir2 = 'asc' } = req.query;
+    const where: any = {};
+    if (ativo !== undefined) where.ativo = ativo === 'true';
+    if (search) {
+      where.OR = [
+        { nome: { contains: String(search), mode: 'insensitive' } },
+        { codigo: { contains: String(search), mode: 'insensitive' } }
+      ];
+    }
+    const orderBy: any[] = [];
+    if (orderBy1) orderBy.push({ [orderBy1 as string]: orderDir1 });
+    if (orderBy2) orderBy.push({ [orderBy2 as string]: orderDir2 });    const turmas = await prisma.turma.findMany({
       where,
-      include: {
-        disciplina: true,
-        sala: true
-      }
+      orderBy: orderBy.length ? orderBy : undefined,
+      include: { disciplina: true, professor: true, sala: true }
     });
     res.json(turmas);
   } catch (error) {
@@ -24,9 +29,9 @@ export const getTurmaById = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const turma = await prisma.turma.findUnique({
-      where: { id: Number(id) },
-      include: {
+      where: { id: Number(id) },      include: {
         disciplina: true,
+        professor: true,
         sala: true
       }
     });
@@ -43,44 +48,34 @@ export const getTurmaById = async (req: Request, res: Response) => {
 
 export const createTurma = async (req: Request, res: Response) => {
   try {
-    const { codigo, disciplinaId, salaId } = req.body;
-    
+    const { nome, diaSemana, horarioInicio, horarioTermino, codigo, disciplinaId, professorId, salaId } = req.body;
+    if (!nome || !diaSemana || !horarioInicio || !horarioTermino || !disciplinaId || !professorId || !salaId) {
+      return res.status(400).json({ error: 'Nome, dia da semana, horário de início, horário de término, disciplina, professor e sala são obrigatórios.' });
+    }
     // Verifica se a disciplina existe
-    const disciplina = await prisma.disciplina.findUnique({
-      where: { id: Number(disciplinaId) }
-    });
-    
+    const disciplina = await prisma.disciplina.findUnique({ where: { id: Number(disciplinaId) } });
     if (!disciplina) {
       return res.status(400).json({ error: 'Disciplina não encontrada' });
     }
-    
+    // Verifica se o professor existe
+    const professor = await prisma.professor.findUnique({ where: { id: Number(professorId) } });
+    if (!professor) {
+      return res.status(400).json({ error: 'Professor não encontrado' });
+    }
+    if (!professor.ativo) {
+      return res.status(400).json({ error: 'Este professor está desativado' });
+    }
     // Verifica se a sala existe
-    const sala = await prisma.sala.findUnique({
-      where: { id: Number(salaId) }
-    });
-    
+    const sala = await prisma.sala.findUnique({ where: { id: Number(salaId) } });
     if (!sala) {
       return res.status(400).json({ error: 'Sala não encontrada' });
     }
-    
-    // Verifica se a sala está ativa
     if (!sala.ativo) {
       return res.status(400).json({ error: 'Esta sala está desativada' });
     }
-    
     const turma = await prisma.turma.create({
-      data: {
-        codigo,
-        disciplinaId: Number(disciplinaId),
-        salaId: Number(salaId),
-        ativo: true
-      },
-      include: {
-        disciplina: true,
-        sala: true
-      }
+      data: { nome, diaSemana, horarioInicio, horarioTermino, codigo, disciplinaId, professorId, salaId, ativo: true }
     });
-    
     res.status(201).json(turma);
   } catch (error) {
     res.status(500).json({ error: "Erro ao criar turma" });
@@ -90,64 +85,40 @@ export const createTurma = async (req: Request, res: Response) => {
 export const updateTurma = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const { codigo, disciplinaId, salaId } = req.body;
-    
+    const { nome, diaSemana, horarioInicio, horarioTermino, codigo, disciplinaId, professorId, salaId } = req.body;
+    if (!nome || !diaSemana || !horarioInicio || !horarioTermino || !disciplinaId || !professorId || !salaId) {
+      return res.status(400).json({ error: 'Nome, dia da semana, horário de início, horário de término, disciplina, professor e sala são obrigatórios.' });
+    }
     // Verifica se a turma existe
-    const existingTurma = await prisma.turma.findUnique({
-      where: { id: Number(id) }
-    });
-    
+    const existingTurma = await prisma.turma.findUnique({ where: { id: Number(id) } });
     if (!existingTurma) {
       return res.status(404).json({ error: 'Turma não encontrada' });
     }
-    
-    // Dados para atualização
-    const updateData: any = {};
-    
-    // Atualiza código se fornecido
-    if (codigo !== undefined) {
-      updateData.codigo = codigo;
+    // Verifica se a disciplina existe
+    const disciplina = await prisma.disciplina.findUnique({ where: { id: Number(disciplinaId) } });
+    if (!disciplina) {
+      return res.status(400).json({ error: 'Disciplina não encontrada' });
     }
-    
-    // Se um disciplinaId foi fornecido, verifica se a disciplina existe
-    if (disciplinaId !== undefined) {
-      const disciplina = await prisma.disciplina.findUnique({
-        where: { id: Number(disciplinaId) }
-      });
-      
-      if (!disciplina) {
-        return res.status(400).json({ error: 'Disciplina não encontrada' });
-      }
-      
-      updateData.disciplinaId = Number(disciplinaId);
+    // Verifica se o professor existe
+    const professor = await prisma.professor.findUnique({ where: { id: Number(professorId) } });
+    if (!professor) {
+      return res.status(400).json({ error: 'Professor não encontrado' });
     }
-    
-    // Se um salaId foi fornecido, verifica se a sala existe e está ativa
-    if (salaId !== undefined) {
-      const sala = await prisma.sala.findUnique({
-        where: { id: Number(salaId) }
-      });
-      
-      if (!sala) {
-        return res.status(400).json({ error: 'Sala não encontrada' });
-      }
-      
-      if (!sala.ativo) {
-        return res.status(400).json({ error: 'Esta sala está desativada' });
-      }
-      
-      updateData.salaId = Number(salaId);
+    if (!professor.ativo) {
+      return res.status(400).json({ error: 'Este professor está desativado' });
     }
-    
+    // Verifica se a sala existe e está ativa
+    const sala = await prisma.sala.findUnique({ where: { id: Number(salaId) } });
+    if (!sala) {
+      return res.status(400).json({ error: 'Sala não encontrada' });
+    }
+    if (!sala.ativo) {
+      return res.status(400).json({ error: 'Esta sala está desativada' });
+    }
     const turma = await prisma.turma.update({
       where: { id: Number(id) },
-      data: updateData,
-      include: {
-        disciplina: true,
-        sala: true
-      }
+      data: { nome, diaSemana, horarioInicio, horarioTermino, codigo, disciplinaId, professorId, salaId }
     });
-    
     res.json(turma);
   } catch (error) {
     res.status(500).json({ error: "Erro ao atualizar turma" });
@@ -192,11 +163,7 @@ export const reativarTurma = async (req: Request, res: Response) => {
     
     const updatedTurma = await prisma.turma.update({
       where: { id: Number(id) },
-      data: { ativo: true },
-      include: {
-        disciplina: true,
-        sala: true
-      }
+      data: { ativo: true }
     });
     
     res.json(updatedTurma);

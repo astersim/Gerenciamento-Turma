@@ -1,10 +1,15 @@
 import api from './api';
 import { Professor } from '../types';
 
-export const getProfessores = async (ativo?: boolean) => {
-  const response = await api.get<Professor[]>(
-    `/professores${ativo !== undefined ? `?ativo=${ativo}` : ''}`
-  );
+export const getProfessores = async (params?: {
+  search?: string;
+  orderBy1?: string;
+  orderDir1?: 'asc' | 'desc';
+  orderBy2?: string;
+  orderDir2?: 'asc' | 'desc';
+  status?: boolean;
+}) => {
+  const response = await api.get<Professor[]>('/professores', { params });
   return response.data;
 };
 

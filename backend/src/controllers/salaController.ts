@@ -3,15 +3,22 @@ import prisma from '../database/prismaClient';
 
 export const getSalas = async (req: Request, res: Response) => {
   try {
-    const { ativo } = req.query;
-    
-    const where = ativo !== undefined ? { ativo: ativo === 'true' } : {};
-    
+    const { ativo, search, orderBy1, orderBy2, orderDir1 = 'asc', orderDir2 = 'asc' } = req.query;
+    const where: any = {};
+    if (ativo !== undefined) where.ativo = ativo === 'true';
+    if (search) {
+      where.OR = [
+        { nome: { contains: String(search), mode: 'insensitive' } },
+        { local: { contains: String(search), mode: 'insensitive' } }
+      ];
+    }
+    const orderBy: any[] = [];
+    if (orderBy1) orderBy.push({ [orderBy1 as string]: orderDir1 });
+    if (orderBy2) orderBy.push({ [orderBy2 as string]: orderDir2 });
     const salas = await prisma.sala.findMany({
       where,
-      include: {
-        turmas: true
-      }
+      orderBy: orderBy.length ? orderBy : undefined,
+      include: { turmas: true }
     });
     res.json(salas);
   } catch (error) {
@@ -41,15 +48,16 @@ export const getSalaById = async (req: Request, res: Response) => {
 
 export const createSala = async (req: Request, res: Response) => {
   try {
-    const { local } = req.body;
-    
+    const { nome, local, capacidade } = req.body;
+    if (!nome || !local || capacidade === undefined) {
+      return res.status(400).json({ error: 'Nome, local e capacidade são obrigatórios.' });
+    }
+    if (typeof capacidade !== 'number' || capacidade <= 0) {
+      return res.status(400).json({ error: 'Capacidade deve ser um número positivo.' });
+    }
     const sala = await prisma.sala.create({
-      data: {
-        local,
-        ativo: true
-      }
+      data: { nome, local, capacidade, ativo: true }
     });
-    
     res.status(201).json(sala);
   } catch (error) {
     res.status(500).json({ error: "Erro ao criar sala" });
@@ -59,13 +67,17 @@ export const createSala = async (req: Request, res: Response) => {
 export const updateSala = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const { local } = req.body;
-    
+    const { nome, local, capacidade } = req.body;
+    if (!nome || !local || capacidade === undefined) {
+      return res.status(400).json({ error: 'Nome, local e capacidade são obrigatórios.' });
+    }
+    if (typeof capacidade !== 'number' || capacidade <= 0) {
+      return res.status(400).json({ error: 'Capacidade deve ser um número positivo.' });
+    }
     const sala = await prisma.sala.update({
       where: { id: Number(id) },
-      data: { local }
+      data: { nome, local, capacidade }
     });
-    
     res.json(sala);
   } catch (error) {
     res.status(500).json({ error: "Erro ao atualizar sala" });

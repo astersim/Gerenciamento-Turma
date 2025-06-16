@@ -6,7 +6,6 @@
 
 generator client {
   provider = "prisma-client-js"
-  output = "../generated/prisma_client"
 }
 
 datasource db {
@@ -15,44 +14,66 @@ datasource db {
 }
 
 model Professor {
-  id          Int                   @id @default(autoincrement())
-  nome        String
-  ativo       Boolean               @default(true)
-  disciplinas ProfessorDisciplina[]
+  id        Int     @id @default(autoincrement())
+  nome      String
+  cpf       String  @unique
+  titulacao String
+  ativo     Boolean @default(true)
+  turmas    Turma[]
 }
 
 model Disciplina {
-  id          Int                   @id @default(autoincrement())
-  nome        String
-  ativo       Boolean               @default(true)
-  professores ProfessorDisciplina[]
-  turmas      Turma[]
+  id      Int     @id @default(autoincrement())
+  nome    String
+  codigo  String  @unique
+  periodo String
+  ativo   Boolean @default(true)
+  turmas  Turma[]
 }
 
 model Sala {
-  id     Int     @id @default(autoincrement())
-  local  String
-  ativo  Boolean @default(true)
-  turmas Turma[]
+  id         Int     @id @default(autoincrement())
+  nome       String
+  local      String
+  capacidade Int
+  ativo      Boolean @default(true)
+  turmas     Turma[]
 }
 
 model Turma {
-  id           Int        @id @default(autoincrement())
-  codigo       String
-  disciplina   Disciplina @relation(fields: [disciplinaId], references: [id])
-  disciplinaId Int
-  sala         Sala       @relation(fields: [salaId], references: [id])
-  salaId       Int
-  ativo        Boolean    @default(true)
+  id             Int        @id @default(autoincrement())
+  nome           String
+  diaSemana      String
+  horarioInicio  String
+  horarioTermino String
+  codigo         String?   // para manter compatibilidade, se necessário
+  disciplina     Disciplina @relation(fields: [disciplinaId], references: [id])
+  disciplinaId   Int
+  professor      Professor  @relation(fields: [professorId], references: [id])
+  professorId    Int
+  sala           Sala       @relation(fields: [salaId], references: [id])
+  salaId         Int
+  ativo          Boolean    @default(true)
+  alunos         TurmaAluno[]
 }
 
-model ProfessorDisciplina {
-  id           Int        @id @default(autoincrement())
-  professor    Professor  @relation(fields: [professorId], references: [id])
-  professorId  Int
-  disciplina   Disciplina @relation(fields: [disciplinaId], references: [id])
-  disciplinaId Int
+model Aluno {
+  id        Int      @id @default(autoincrement())
+  nome      String
+  sobrenome String
+  email     String   @unique
+  cpf       String   @unique
+  ativo     Boolean  @default(true)
+  turmas    TurmaAluno[]
+}
 
-  @@unique([professorId, disciplinaId])
+model TurmaAluno {
+  id      Int    @id @default(autoincrement())
+  turma   Turma  @relation(fields: [turmaId], references: [id])
+  turmaId Int
+  aluno   Aluno  @relation(fields: [alunoId], references: [id])
+  alunoId Int
+
+  @@unique([turmaId, alunoId])
 }
 
