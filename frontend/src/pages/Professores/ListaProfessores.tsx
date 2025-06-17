@@ -5,7 +5,6 @@ import { getProfessores, deleteProfessor } from '../../services/professorService
 import StatusBadge from '../../components/ui/StatusBadge';
 import Layout from '../../components/Layout/Layout';
 
-
 const ListaProfessores: React.FC = () => {
   const [professores, setProfessores] = useState<Professor[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -58,7 +57,6 @@ const ListaProfessores: React.FC = () => {
       }
     }
   };
-
   const professoresFiltrados = mostrarInativos
     ? professores
     : professores.filter((professor) => professor.ativo);
@@ -76,7 +74,8 @@ const ListaProfessores: React.FC = () => {
             value={search}
             onChange={e => setSearch(e.target.value)}
           />
-        </div>        <div className="col-md-2">
+        </div>
+        <div className="col-md-2">
           <select className="form-select" value={orderBy1} onChange={e => setOrderBy1(e.target.value)}>
             <option value="nome">Nome</option>
             <option value="cpf">CPF</option>
@@ -89,7 +88,8 @@ const ListaProfessores: React.FC = () => {
             <option value="desc">↓</option>
           </select>
         </div>
-        <div className="col-md-2">          <select className="form-select" value={orderBy2} onChange={e => setOrderBy2(e.target.value)}>
+        <div className="col-md-2">
+          <select className="form-select" value={orderBy2} onChange={e => setOrderBy2(e.target.value)}>
             <option value="">(2º ordenação)</option>
             <option value="nome">Nome</option>
             <option value="cpf">CPF</option>
