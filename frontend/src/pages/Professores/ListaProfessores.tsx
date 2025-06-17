@@ -57,25 +57,14 @@ const ListaProfessores: React.FC = () => {
       }
     }
   };
-
   const professoresFiltrados = mostrarInativos
     ? professores
     : professores.filter((professor) => professor.ativo);
-
-  const professoresPesquisados = professoresFiltrados
-    .filter((professor) =>
-      professor.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      professor.disciplinas.some(pd => 
-        pd.disciplina?.nome.toLowerCase().includes(searchTerm.toLowerCase())
-      )
-    )
-    .sort((a, b) => a.nome.localeCompare(b.nome));
 
   return (
     <Layout>
       <h1>Professores</h1>
       {error && <div className="alert alert-danger">{error}</div>}
-<<<<<<< HEAD
       <form className="row g-2 mb-3" onSubmit={e => { e.preventDefault(); carregarProfessores(); }}>
         <div className="col-md-4">
           <input
@@ -85,7 +74,8 @@ const ListaProfessores: React.FC = () => {
             value={search}
             onChange={e => setSearch(e.target.value)}
           />
-        </div>        <div className="col-md-2">
+        </div>
+        <div className="col-md-2">
           <select className="form-select" value={orderBy1} onChange={e => setOrderBy1(e.target.value)}>
             <option value="nome">Nome</option>
             <option value="cpf">CPF</option>
@@ -98,7 +88,8 @@ const ListaProfessores: React.FC = () => {
             <option value="desc">↓</option>
           </select>
         </div>
-        <div className="col-md-2">          <select className="form-select" value={orderBy2} onChange={e => setOrderBy2(e.target.value)}>
+        <div className="col-md-2">
+          <select className="form-select" value={orderBy2} onChange={e => setOrderBy2(e.target.value)}>
             <option value="">(2º ordenação)</option>
             <option value="nome">Nome</option>
             <option value="cpf">CPF</option>
@@ -115,16 +106,6 @@ const ListaProfessores: React.FC = () => {
           <button type="submit" className="btn btn-outline-primary w-100">Buscar</button>
         </div>
       </form>
-=======
-      
-      <div className="mb-3">
-        <SearchBar
-          value={searchTerm}
-          onChange={setSearchTerm}
-          placeholder="Pesquisar por nome ou disciplina..."
-        />
-      </div>
->>>>>>> 4a7d78ca2847e2deee8caf64ebddef98dd3046fa
 
       <div className="d-flex justify-content-between mb-3">
         <div className="form-check">
@@ -160,21 +141,14 @@ const ListaProfessores: React.FC = () => {
                 <th>Ações</th>
               </tr>
             </thead>
-<<<<<<< HEAD
             <tbody>              {professoresFiltrados.length === 0 ? (
                 <tr>
                   <td colSpan={3} className="text-center">
-=======
-            <tbody>
-              {professoresPesquisados.length === 0 ? (
-                <tr>
-                  <td colSpan={4} className="text-center">
->>>>>>> 4a7d78ca2847e2deee8caf64ebddef98dd3046fa
                     Nenhum professor encontrado.
                   </td>
                 </tr>
               ) : (
-                professoresPesquisados.map((professor) => (
+                professoresFiltrados.map((professor) => (
                   <tr key={professor.id}>
                     <td>{professor.nome}</td>
                     <td>
