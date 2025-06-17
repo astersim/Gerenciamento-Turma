@@ -6,6 +6,16 @@ import salaRoutes from './sala';
 import alunoRoutes from './aluno';
 
 const router = Router();
+
+// Health check endpoint
+router.get('/health', (req, res) => {
+  res.status(200).json({ 
+    status: 'healthy', 
+    timestamp: new Date().toISOString(),
+    service: 'gerenciamento-turma-backend'
+  });
+});
+
 router.use('/disciplinas', disciplinaRoutes);
 router.use('/professores', professorRoutes);
 router.use('/turmas', turmaRoutes);

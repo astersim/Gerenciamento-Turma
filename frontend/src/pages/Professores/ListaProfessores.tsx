@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Professor } from '../../types';
 import { getProfessores, deleteProfessor } from '../../services/professorService';
-import StatusBadge from '../../components/ui/StatusBadge';
 import Layout from '../../components/Layout/Layout';
 
 const ListaProfessores: React.FC = () => {
@@ -133,17 +132,17 @@ const ListaProfessores: React.FC = () => {
       {loading ? (
         <p>Carregando...</p>
       ) : (
-        <div className="table-responsive">
-          <table className="table table-striped">            <thead>
+        <div className="table-responsive">          <table className="table table-striped">            <thead>
               <tr>
                 <th>Nome</th>
-                <th>Status</th>
+                <th>CPF</th>
+                <th>Titulação</th>
                 <th>Ações</th>
               </tr>
             </thead>
             <tbody>              {professoresFiltrados.length === 0 ? (
                 <tr>
-                  <td colSpan={3} className="text-center">
+                  <td colSpan={4} className="text-center">
                     Nenhum professor encontrado.
                   </td>
                 </tr>
@@ -151,9 +150,8 @@ const ListaProfessores: React.FC = () => {
                 professoresFiltrados.map((professor) => (
                   <tr key={professor.id}>
                     <td>{professor.nome}</td>
-                    <td>
-                      <StatusBadge active={professor.ativo} />
-                    </td>
+                    <td>{professor.cpf}</td>
+                    <td>{professor.titulacao}</td>
                     <td>
                       <Link
                         to={`/professores/editar/${professor.id}`}

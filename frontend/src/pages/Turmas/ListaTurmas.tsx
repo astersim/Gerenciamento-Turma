@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Turma } from '../../types';
 import { getTurmas, deleteTurma } from '../../services/turmaService';
-import StatusBadge from '../../components/ui/StatusBadge';
 import Layout from '../../components/Layout/Layout';
 
 const ListaTurmas: React.FC = () => {
@@ -136,14 +135,13 @@ const ListaTurmas: React.FC = () => {
       {loading ? (
         <p>Carregando...</p>
       ) : (
-        <div className="table-responsive">
-          <table className="table table-striped">            <thead>
+        <div className="table-responsive">          <table className="table table-striped">            <thead>
               <tr>
                 <th>Código</th>
                 <th>Disciplina</th>
                 <th>Professor</th>
                 <th>Sala</th>
-                <th>Status</th>
+                <th>Horário</th>
                 <th>Ações</th>
               </tr>
             </thead>
@@ -160,9 +158,7 @@ const ListaTurmas: React.FC = () => {
                     <td>{turma.disciplina?.nome}</td>
                     <td>{turma.professor?.nome}</td>
                     <td>{turma.sala?.local}</td>
-                    <td>
-                      <StatusBadge active={turma.ativo} />
-                    </td>                    <td>
+                    <td>{turma.diaSemana} {turma.horarioInicio}-{turma.horarioTermino}</td>                    <td>
                       <Link
                         to={`/turmas/editar/${turma.id}`}
                         className="btn btn-sm btn-primary me-2"

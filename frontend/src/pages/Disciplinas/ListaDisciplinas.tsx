@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Disciplina } from '../../types';
 import { getDisciplinas, deleteDisciplina } from '../../services/disciplinaService';
-import StatusBadge from '../../components/ui/StatusBadge';
 import Layout from '../../components/Layout/Layout';
 
 const ListaDisciplinas: React.FC = () => {
@@ -132,17 +131,17 @@ const ListaDisciplinas: React.FC = () => {
       {loading ? (
         <p>Carregando...</p>
       ) : (
-        <div className="table-responsive">
-          <table className="table table-striped">            <thead>
+        <div className="table-responsive">          <table className="table table-striped">            <thead>
               <tr>
                 <th>Nome</th>
-                <th>Status</th>
+                <th>Código</th>
+                <th>Período</th>
                 <th>Ações</th>
               </tr>
             </thead>
             <tbody>              {disciplinasFiltradas.length === 0 ? (
                 <tr>
-                  <td colSpan={3} className="text-center">
+                  <td colSpan={4} className="text-center">
                     Nenhuma disciplina encontrada.
                   </td>
                 </tr>
@@ -150,9 +149,8 @@ const ListaDisciplinas: React.FC = () => {
                 disciplinasFiltradas.map((disciplina) => (
                   <tr key={disciplina.id}>
                     <td>{disciplina.nome}</td>
-                    <td>
-                      <StatusBadge active={disciplina.ativo} />
-                    </td>
+                    <td>{disciplina.codigo}</td>
+                    <td>{disciplina.periodo}</td>
                     <td>
                       <Link
                         to={`/disciplinas/editar/${disciplina.id}`}

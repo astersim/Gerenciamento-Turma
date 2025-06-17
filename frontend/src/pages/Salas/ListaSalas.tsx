@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Sala } from '../../types';
 import { getSalas, deleteSala } from '../../services/salaService';
-import StatusBadge from '../../components/ui/StatusBadge';
 import Layout from '../../components/Layout/Layout';
 
 const ListaSalas: React.FC = () => {
@@ -39,7 +38,7 @@ const ListaSalas: React.FC = () => {
 
   useEffect(() => {
     carregarSalas();
-    // eslint-disable-next-line
+    
   }, [search, orderBy1, orderDir1, orderBy2, orderDir2, mostrarInativas]);
 
   const handleDelete = async (id: number) => {
@@ -136,27 +135,26 @@ const ListaSalas: React.FC = () => {
       {loading ? (
         <p>Carregando...</p>
       ) : (
-        <div className="table-responsive">
-          <table className="table table-striped">            <thead>
+        <div className="table-responsive">          <table className="table table-striped">            <thead>
               <tr>
+                <th>Nome</th>
                 <th>Local</th>
-                <th>Status</th>
+                <th>Capacidade</th>
                 <th>Ações</th>
               </tr>
             </thead>
             <tbody>              {salasFiltradas.length === 0 ? (
                 <tr>
-                  <td colSpan={3} className="text-center">
+                  <td colSpan={4} className="text-center">
                     Nenhuma sala encontrada.
                   </td>
                 </tr>
               ) : (
                 salasFiltradas.map((sala) => (
                   <tr key={sala.id}>
+                    <td>{sala.nome}</td>
                     <td>{sala.local}</td>
-                    <td>
-                      <StatusBadge active={sala.ativo} />
-                    </td>
+                    <td>{sala.capacidade}</td>
                     <td>
                       <Link
                         to={`/salas/editar/${sala.id}`}

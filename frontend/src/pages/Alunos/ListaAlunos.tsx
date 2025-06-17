@@ -2,7 +2,6 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { Aluno } from '../../types';
 import { getAlunos, deleteAluno } from '../../services/alunoService';
-import StatusBadge from '../../components/ui/StatusBadge';
 
 const ListaAlunos: React.FC<{ onEdit: (aluno: Aluno) => void; onNew: () => void }> = ({ onEdit, onNew }) => {
   const [alunos, setAlunos] = useState<Aluno[]>([]);
@@ -146,12 +145,11 @@ const ListaAlunos: React.FC<{ onEdit: (aluno: Aluno) => void; onNew: () => void 
             Reativar Alunos
           </Link>
         </div>
-      </div><div className="table-responsive">
-        <table className="table table-striped">          <thead>
+      </div><div className="table-responsive">        <table className="table table-striped">          <thead>
             <tr>
               <th>Nome</th>
               <th>Email</th>
-              <th>Status</th>
+              <th>CPF</th>
               <th>Ações</th>
             </tr>
           </thead>
@@ -165,9 +163,7 @@ const ListaAlunos: React.FC<{ onEdit: (aluno: Aluno) => void; onNew: () => void 
               alunosFiltrados.map(aluno => (
                 <tr key={aluno.id}>
                   <td>{aluno.nome} {aluno.sobrenome}</td>
-                  <td>{aluno.email}</td>                  <td>
-                    <StatusBadge active={aluno.ativo} />
-                  </td>
+                  <td>{aluno.email}</td>                  <td>{aluno.cpf}</td>
                   <td>
                     <button 
                       className="btn btn-sm btn-primary me-2" 
