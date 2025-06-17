@@ -1,33 +1,68 @@
 # Gerenciamento de Turmas
 
-Sistema completo para cadastro, gerenciamento e reativação de Professores, Disciplinas, Salas e Turmas.
+Sistema completo para cadastro, gerenciamento e reativação de Professores, Disciplinas, Salas, Turmas e Alunos com sistema de matrículas.
 
 ## Funcionalidades
-- CRUD completo para Professores, Disciplinas, Salas e Turmas
+- CRUD completo para Professores, Disciplinas, Salas, Turmas e Alunos
+- Sistema de matrículas com gerenciamento de alunos por turma
+- Reativação de registros desativados (soft delete)
 - Busca e ordenação por até dois atributos em todas as listagens
-- Botões de editar/desativar nas tabelas principais
-- Campo "ativo" oculto em formulários de cadastro/edição
-- Tela separada para reativação de registros inativos
 - Validação de CPF, unicidade, limites de caracteres e campos obrigatórios
-- Docker para backend, frontend e banco de dados PostgreSQL
+- Interface responsiva com Bootstrap
+- Containerização completa com Docker
 
-## Execução com Docker
+## 🐳 Execução com Docker (Recomendado)
+
+### Pré-requisitos
+- Docker
+- Docker Compose
+
+### Execução Rápida
+
+**Windows:**
+```powershell
+.\setup-docker.bat
+```
+
+**Linux/Mac:**
+```bash
+chmod +x setup-docker.sh
+./setup-docker.sh
+```
+
+### Execução Manual
 
 1. **Clone o repositório:**
-   ```powershell
+   ```bash
    git clone <URL_DO_REPOSITORIO>
    cd GerenciamentoTurma
    ```
-2. **Suba os containers:**
-   ```powershell
-   cd backend
-   docker compose -f docker-compose.postgres.yml up --build
+
+2. **Inicie todos os serviços:**
+   ```bash
+   docker-compose up --build -d
    ```
-   Isso irá subir o banco de dados, backend e frontend.
 
 3. **Acesse o sistema:**
-   - Frontend: http://localhost:3001
-   - Backend (API): http://localhost:3000/api
+   - **Frontend:** http://localhost (porta 80)
+   - **Backend API:** http://localhost:3000/api
+   - **Banco PostgreSQL:** localhost:5432
+
+### Comandos Úteis
+
+```bash
+# Ver logs em tempo real
+docker-compose logs -f
+
+# Parar a aplicação
+docker-compose down
+
+# Parar e limpar volumes (remove dados do banco)
+docker-compose down -v
+
+# Reconstruir apenas um serviço
+docker-compose up --build <nome-do-serviço>
+```
 
 ## Publicação no GitHub
 
