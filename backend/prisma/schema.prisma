@@ -46,7 +46,7 @@ model Turma {
   diaSemana      String
   horarioInicio  String
   horarioTermino String
-  codigo         String?
+  codigo         String?   // para manter compatibilidade, se necessário
   disciplina     Disciplina @relation(fields: [disciplinaId], references: [id])
   disciplinaId   Int
   professor      Professor  @relation(fields: [professorId], references: [id])
@@ -76,5 +76,4 @@ model TurmaAluno {
 
   @@unique([turmaId, alunoId])
 }
-
 

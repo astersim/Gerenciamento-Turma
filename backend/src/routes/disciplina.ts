@@ -1,7 +1,6 @@
 import { Router } from 'express';
 import {
   getDisciplinas,
-  getDisciplinaById,
   createDisciplina,
   updateDisciplina,
   deleteDisciplina,
@@ -11,7 +10,6 @@ import {
 const router = Router();
 
 router.get('/', getDisciplinas);
-router.get('/:id', getDisciplinaById);
 router.post('/', createDisciplina);
 router.put('/:id', updateDisciplina);
 router.delete('/:id', deleteDisciplina);

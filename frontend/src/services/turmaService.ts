@@ -18,25 +18,14 @@ export const getTurma = async (id: number) => {
   return response.data;
 };
 
-export const createTurma = async (
-  turma: { 
-  codigo: string; 
-  disciplinaId: number; 
-  salaId: number;
-  professorId?: number | null;
-}) => {
+export const createTurma = async (turma: { codigo: string; disciplinaId: number; salaId: number }) => {
   const response = await api.post<Turma>('/turmas', turma);
   return response.data;
 };
 
 export const updateTurma = async (
   id: number,
-  turma: { 
-    codigo?: string; 
-    disciplinaId?: number; 
-    salaId?: number;
-    professorId?: number | null;
-  }
+  turma: { codigo?: string; disciplinaId?: number; salaId?: number }
 ) => {
   const response = await api.put<Turma>(`/turmas/${id}`, turma);
   return response.data;
