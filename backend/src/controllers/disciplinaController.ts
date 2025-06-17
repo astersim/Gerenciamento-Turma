@@ -1,5 +1,7 @@
 import { Request, Response } from 'express';
-import prisma from '../database/prismaClient';
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
 
 function validarCodigo(codigo: string) {
   // Letras e números, até 10 caracteres
@@ -27,7 +29,11 @@ export const getDisciplinas = async (req: Request, res: Response) => {
     });
     res.json(disciplinas);
   } catch (error) {
-    res.status(500).json({ error: "Erro ao buscar disciplinas" });
+    console.error('Error fetching disciplinas:', error);
+    return res.status(500).json({
+      error: 'Erro interno ao buscar disciplinas',
+      details: process.env.NODE_ENV === 'development' ? error : undefined
+    });
   }
 };
 

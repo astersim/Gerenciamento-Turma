@@ -5,7 +5,6 @@ import { getProfessores, deleteProfessor } from '../../services/professorService
 import StatusBadge from '../../components/ui/StatusBadge';
 import Layout from '../../components/Layout/Layout';
 
-
 const ListaProfessores: React.FC = () => {
   const [professores, setProfessores] = useState<Professor[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
