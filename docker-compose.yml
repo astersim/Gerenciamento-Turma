@@ -1,13 +1,12 @@
-services:
-  # PostgreSQL Database
+services:  # PostgreSQL Database
   database:
     image: postgres:15-alpine
     container_name: gerenciamento_db
     restart: unless-stopped
     environment:
-      POSTGRES_DB: gerenciamento_turma
+      POSTGRES_DB: gerenciador-turma
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres123
+      POSTGRES_PASSWORD: postgres1234
     ports:
       - "5432:5432"
     volumes:
@@ -30,8 +29,9 @@ services:
     restart: unless-stopped
     environment:
       - NODE_ENV=production
-      - DATABASE_URL=postgresql://postgres:postgres123@database:5432/gerenciamento_turma
+      - DATABASE_URL=postgresql://postgres:postgres1234@database:5432/gerenciador-turma
       - PORT=3001
+      - CORS_ORIGIN=http://localhost:3000
     ports:
       - "3001:3001"
     volumes:
